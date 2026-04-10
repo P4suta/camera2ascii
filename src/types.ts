@@ -5,6 +5,7 @@ export interface AppState {
 	targetFps: number;
 	colorMode: ColorMode;
 	charSet: CharSetName;
+	customRamp: string;
 	flipHorizontal: boolean;
 	fontSize: number;
 	currentFps: number;
@@ -21,7 +22,18 @@ export type CharRamp = readonly string[];
 
 export type ColorMode = "mono" | "color" | "green";
 
-export type CharSetName = "standard" | "detailed" | "blocks" | "minimal";
+export type CharSetName =
+	| "standard"
+	| "detailed"
+	| "blocks"
+	| "minimal"
+	| "braille"
+	| "kanji"
+	| "geometric"
+	| "shade"
+	| "box"
+	| "unicode"
+	| "custom";
 
 import { assertPositive, postcondition } from "./assert";
 
@@ -33,6 +45,7 @@ export function createDefaultState(): AppState {
 		targetFps: 15,
 		colorMode: "mono",
 		charSet: "standard",
+		customRamp: "",
 		flipHorizontal: true,
 		fontSize: 10,
 		currentFps: 0,

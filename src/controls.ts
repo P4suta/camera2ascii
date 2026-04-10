@@ -90,12 +90,35 @@ export function createControlsPanel(state: AppState, callbacks: ControlCallbacks
 			{ value: "detailed", label: "Detailed" },
 			{ value: "blocks", label: "Blocks" },
 			{ value: "minimal", label: "Minimal" },
+			{ value: "braille", label: "Braille (256 levels)" },
+			{ value: "kanji", label: "Kanji (画数)" },
+			{ value: "geometric", label: "Geometric" },
+			{ value: "shade", label: "Shade Blocks" },
+			{ value: "box", label: "Box Drawing" },
+			{ value: "unicode", label: "Unicode (257 levels)" },
+			{ value: "custom", label: "Custom..." },
 		],
 		state.charSet,
 		(v) => {
 			state.charSet = v as CharSetName;
+			customRampGroup.style.display = v === "custom" ? "block" : "none";
 		},
 	);
+
+	const customRampInput = el("input", {
+		type: "text",
+		id: "input-custom-ramp",
+		placeholder: "Dark→Light (e.g. @#*:. )",
+		value: state.customRamp,
+	}) as HTMLInputElement;
+	customRampInput.addEventListener("input", () => {
+		state.customRamp = customRampInput.value;
+	});
+	const customRampGroup = el("div", { class: "control-group" }, [
+		el("label", {}, ["Custom Ramp"]),
+		customRampInput,
+	]);
+	customRampGroup.style.display = state.charSet === "custom" ? "block" : "none";
 
 	const colorSelect = select(
 		"select-color",
@@ -132,6 +155,7 @@ export function createControlsPanel(state: AppState, callbacks: ControlCallbacks
 		fontSlider,
 		fpsSlider,
 		charSetSelect,
+		customRampGroup,
 		colorSelect,
 		mirrorGroup,
 		fpsDisplay,

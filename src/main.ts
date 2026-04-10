@@ -58,7 +58,10 @@ export function processFrame(
 	canvas.height = state.height;
 
 	const imageData = captureFrame(video, ctx, state.width, state.height, state.flipHorizontal);
-	const ramp = CHAR_RAMPS[state.charSet] ?? CHAR_RAMPS.standard;
+	const ramp =
+		state.charSet === "custom" && state.customRamp.length >= 2
+			? [...state.customRamp]
+			: (CHAR_RAMPS[state.charSet] ?? CHAR_RAMPS.standard);
 	const frame = imageDataToAscii(imageData, ramp, state.colorMode);
 
 	output.style.fontSize = `${state.fontSize}px`;

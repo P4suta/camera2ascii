@@ -1,11 +1,39 @@
 import { assertInRange, assertNonEmpty, postcondition } from "./assert";
+import { DENSITY_RAMP_HALF } from "./generated/charmap";
 import type { AsciiFrame, CharRamp, ColorMode } from "./types";
+
+function buildBrailleRamp(): CharRamp {
+	// Braille patterns U+2801-U+28FF ordered by dot count (visual density)
+	// Each braille character has 8 dot positions; more dots = visually darker
+	// U+2800 (blank braille) is excluded; ASCII space is used as the lightest character
+	const chars: { ch: string; dots: number }[] = [];
+	for (let code = 0x2801; code <= 0x28ff; code++) {
+		let bits = code - 0x2800;
+		let count = 0;
+		while (bits) {
+			count += bits & 1;
+			bits >>= 1;
+		}
+		chars.push({ ch: String.fromCodePoint(code), dots: count });
+	}
+	chars.sort((a, b) => b.dots - a.dots || b.ch.localeCompare(a.ch));
+	return [...chars.map((c) => c.ch), " "];
+}
 
 export const CHAR_RAMPS: Record<string, CharRamp> = {
 	standard: [..."@%#*+=-:. "],
 	detailed: [..."$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. "],
 	blocks: [..."█▓▒░ "],
 	minimal: [..."@#:. "],
+	braille: buildBrailleRamp(),
+	kanji: [
+		..."龍鑑轟鬱響驚騒護議覇類願繊織壊識燃闘糧薄簿翼臨瞬録環縦績優謝儀還績壁磨壇層操樹築澄激濃導橋整暮種暗園絹農雲象想落葉港森湖結棒深船陸粒砂波空林明草花竹糸虫犬玉石田力山口日一",
+		" ",
+	],
+	geometric: [..."◆◉●◍◐◑○◌·", " "],
+	shade: [..."█▉▊▋▌▍▎▏ "],
+	box: [..."╬╫╪╩╦╠╣║═╗╔╚╝│─┼┤├┬┴", " "],
+	unicode: DENSITY_RAMP_HALF,
 };
 
 export function brightness(r: number, g: number, b: number): number {
