@@ -50,13 +50,15 @@ export function renderFrame(
 	ctx.textBaseline = "top";
 
 	const { chars } = frame;
-	const len = chars.length;
+	const rows = Math.ceil(chars.length / cols);
 
-	for (let i = 0; i < len; i++) {
-		const col = i % cols;
-		const row = Math.floor(i / cols);
-		const x = col * cell.cellWidth;
-		const y = row * cell.cellHeight;
-		ctx.fillText(chars[i], x, y);
+	for (let r = 0; r < rows; r++) {
+		const start = r * cols;
+		const end = Math.min(start + cols, chars.length);
+		let line = "";
+		for (let i = start; i < end; i++) {
+			line += chars[i];
+		}
+		ctx.fillText(line, 0, r * cell.cellHeight);
 	}
 }
