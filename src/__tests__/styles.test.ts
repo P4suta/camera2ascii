@@ -14,10 +14,10 @@ describe("injectStyles", () => {
 		expect(styleEl?.tagName).toBe("STYLE");
 	});
 
-	test("style contains dark background", () => {
+	test("style contains black background", () => {
 		injectStyles();
 		const styleEl = document.getElementById("camera2ascii-styles");
-		expect(styleEl?.textContent).toContain("#0d1117");
+		expect(styleEl?.textContent).toContain("#000");
 	});
 
 	test("style contains monospace font", () => {

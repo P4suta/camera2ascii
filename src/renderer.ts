@@ -1,74 +1,62 @@
-import { assertNonEmpty, assertPositive, postcondition } from "./assert";
-import type { AsciiFrame, ColorMode } from "./types";
+import { assertPositive } from "./assert";
+import type { AsciiFrame } from "./types";
 
-export function createOutputElement(): HTMLPreElement {
-	const pre = document.createElement("pre");
-	pre.id = "ascii-output";
+const FONT_FAMILY = '"SF Mono", Menlo, Consolas, "Courier New", monospace';
+const FONT_SIZE = 14;
+const FILL_STYLE = "rgba(255, 255, 255, 0.85)";
 
-	postcondition(pre.tagName === "PRE", "created element must be a PRE");
-	return pre;
+export interface CellMetrics {
+	cellWidth: number;
+	cellHeight: number;
 }
 
-const ESCAPE_MAP: Record<string, string> = {
-	"&": "&amp;",
-	"<": "&lt;",
-	">": "&gt;",
-	'"': "&quot;",
-};
-
-function escapeHtml(ch: string): string {
-	return ESCAPE_MAP[ch] ?? ch;
+export function measureCell(ctx: CanvasRenderingContext2D): CellMetrics {
+	ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
+	const m = ctx.measureText("M");
+	const cellWidth = Math.ceil(m.width);
+	const cellHeight = Math.ceil(FONT_SIZE * 1.2);
+	return { cellWidth, cellHeight };
 }
 
-const RGB_PATTERN = /^rgb\(\d{1,3},\d{1,3},\d{1,3}\)$/;
+export function calcGridSize(
+	canvasWidth: number,
+	canvasHeight: number,
+	cell: CellMetrics,
+): { cols: number; rows: number } {
+	assertPositive(canvasWidth, "canvas width");
+	assertPositive(canvasHeight, "canvas height");
+	assertPositive(cell.cellWidth, "cell width");
+	assertPositive(cell.cellHeight, "cell height");
 
-function sanitizeColor(color: string): string {
-	return RGB_PATTERN.test(color) ? color : "rgb(128,128,128)";
+	return {
+		cols: Math.floor(canvasWidth / cell.cellWidth),
+		rows: Math.floor(canvasHeight / cell.cellHeight),
+	};
 }
 
 export function renderFrame(
-	output: HTMLPreElement,
+	ctx: CanvasRenderingContext2D,
 	frame: AsciiFrame,
-	width: number,
-	colorMode: ColorMode,
+	cols: number,
+	cell: CellMetrics,
+	canvasWidth: number,
+	canvasHeight: number,
 ): void {
-	assertNonEmpty(frame.chars, "frame chars");
-	assertPositive(width, "render width");
+	ctx.fillStyle = "#000000";
+	ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-	const { chars, colors } = frame;
+	ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
+	ctx.fillStyle = FILL_STYLE;
+	ctx.textBaseline = "top";
+
+	const { chars } = frame;
 	const len = chars.length;
 
-	if (colorMode === "mono") {
-		const parts: string[] = [];
-		for (let i = 0; i < len; i++) {
-			parts.push(chars[i]);
-			if ((i + 1) % width === 0 && i < len - 1) {
-				parts.push("\n");
-			}
-		}
-		output.textContent = parts.join("");
-	} else {
-		// Reuse existing spans if count matches (fast path for subsequent frames)
-		const existingSpans = output.getElementsByTagName("span");
-		if (existingSpans.length === len) {
-			for (let i = 0; i < len; i++) {
-				const span = existingSpans[i];
-				span.textContent = chars[i] === " " ? "\u00a0" : chars[i];
-				span.style.color = sanitizeColor(colors?.[i] ?? "rgb(128,128,128)");
-			}
-		} else {
-			// First frame or dimension change: build with innerHTML
-			const parts: string[] = [];
-			for (let i = 0; i < len; i++) {
-				const ch = chars[i] === " " ? "&nbsp;" : escapeHtml(chars[i]);
-				parts.push(
-					`<span style="color:${sanitizeColor(colors?.[i] ?? "rgb(128,128,128)")}">${ch}</span>`,
-				);
-				if ((i + 1) % width === 0 && i < len - 1) {
-					parts.push("<br>");
-				}
-			}
-			output.innerHTML = parts.join("");
-		}
+	for (let i = 0; i < len; i++) {
+		const col = i % cols;
+		const row = Math.floor(i / cols);
+		const x = col * cell.cellWidth;
+		const y = row * cell.cellHeight;
+		ctx.fillText(chars[i], x, y);
 	}
 }

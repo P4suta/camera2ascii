@@ -1,7 +1,7 @@
 # camera2ascii
 
 Webカメラの映像をリアルタイムでASCIIアートに変換するブラウザアプリ。
-外部ランタイム依存ゼロ。
+外部ランタイム依存ゼロ。Canvas描画。UIなし。即時起動。
 
 ## Tech Stack
 
@@ -19,24 +19,30 @@ bun test --coverage      # カバレッジ付きテスト
 bun run lint             # Biome lint
 bun run format           # Biome format
 bun run check            # lint + 型チェック
+bun run generate:charmap # Unicode密度ランプ再生成
 ```
 
 ## Architecture
 
-- `src/main.ts` — エントリポイント、レンダーループ、アプリ構築
+- `src/main.ts` — エントリポイント、即時起動、レンダーループ、リサイズ対応
 - `src/camera.ts` — getUserMedia によるWebcamキャプチャ
-- `src/converter.ts` — ピクセル→ASCII変換 (輝度計算、文字マッピング)
-- `src/renderer.ts` — AsciiFrame の DOM 描画
-- `src/controls.ts` — UIコントロールパネル
-- `src/types.ts` — AppState, AsciiFrame 等の型定義
-- `src/dom.ts` — 型安全なDOM要素作成ユーティリティ
-- `src/styles.ts` — CSS注入
+- `src/converter.ts` — ピクセル→文字変換 (257レベルUnicode密度ランプ)
+- `src/renderer.ts` — Canvas fillText() 描画
+- `src/types.ts` — AppState, AsciiFrame 型定義
+- `src/styles.ts` — CSS注入 (全画面Canvas + 起動/エラー表示)
 - `src/assert.ts` — 契約アサーション関数
+- `src/generated/charmap.ts` — ビルド時生成のUnicode密度ランプ
+- `scripts/generate-charmap.ts` — 文字密度解析スクリプト
 
 ## Conventions
 
 - 外部ランタイム依存ゼロ (devDependenciesのみ許可)
-- 全DOM構築はTypeScriptで行う (フレームワーク不使用)
+- UIコントロールなし。全パラメータは自動決定
+- Canvas描画（DOM textContent/innerHTML は使わない）
 - Biome: タブインデント、行幅100文字
 - TDD: テストを先に書いてから実装
 - テストファイルは `src/__tests__/` に配置
+
+## Design
+
+設計思想は DESIGN.md を参照。

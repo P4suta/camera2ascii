@@ -11,174 +11,68 @@ html, body {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	background: #0d1117;
-	color: #c9d1d9;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+	background: #000;
 }
 
-#app {
-	display: flex;
+#display {
+	display: block;
 	width: 100%;
 	height: 100%;
 }
 
-#ascii-output {
-	flex: 1;
-	background: #000;
-	color: #e0e0e0;
-	font-family: "Courier New", Consolas, Monaco, monospace;
-	line-height: 1.0;
-	letter-spacing: 0;
-	white-space: pre;
-	overflow: hidden;
+#prompt {
+	position: fixed;
+	inset: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	user-select: text;
-	padding: 8px;
+	background: #000;
+	z-index: 10;
+	opacity: 1;
+	transition: opacity 0.6s ease;
 }
 
-#controls {
-	width: 260px;
-	min-width: 260px;
-	background: #161b22;
-	padding: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	overflow-y: auto;
-	border-left: 1px solid #30363d;
+#prompt.hidden {
+	opacity: 0;
+	pointer-events: none;
 }
 
-#controls h1 {
-	font-size: 18px;
-	font-weight: 600;
-	color: #f0f6fc;
-	margin-bottom: 4px;
-}
-
-.control-group {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
-.control-group label {
-	font-size: 12px;
-	color: #8b949e;
-	text-transform: uppercase;
+#prompt span {
+	font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+	font-size: 16px;
+	color: rgba(255, 255, 255, 0.5);
 	letter-spacing: 0.5px;
+	animation: fade-in 1s ease;
 }
 
-.control-group input[type="range"] {
-	width: 100%;
-	accent-color: #238636;
-}
-
-.control-group select {
-	width: 100%;
-	padding: 6px 8px;
-	background: #0d1117;
-	color: #c9d1d9;
-	border: 1px solid #30363d;
-	border-radius: 6px;
-	font-size: 13px;
-}
-
-.control-group .value-display {
-	font-size: 12px;
-	color: #58a6ff;
-	text-align: right;
-}
-
-#btn-toggle {
-	padding: 10px;
-	background: #238636;
-	color: #fff;
-	border: none;
-	border-radius: 6px;
+#toast {
+	position: fixed;
+	bottom: 32px;
+	left: 50%;
+	transform: translateX(-50%);
+	font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace;
 	font-size: 14px;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background 0.15s;
+	color: rgba(255, 255, 255, 0.5);
+	background: rgba(255, 255, 255, 0.08);
+	padding: 12px 24px;
+	border-radius: 8px;
+	z-index: 20;
+	opacity: 0;
+	transition: opacity 0.4s ease;
+	pointer-events: none;
 }
 
-#btn-toggle:hover {
-	background: #2ea043;
-}
-
-#btn-toggle.active {
-	background: #da3633;
-}
-
-#btn-toggle.active:hover {
-	background: #f85149;
-}
-
-#fps-display {
-	font-size: 13px;
-	color: #58a6ff;
-	text-align: center;
-	font-variant-numeric: tabular-nums;
-}
-
-.checkbox-group {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	font-size: 13px;
-}
-
-.checkbox-group input[type="checkbox"] {
-	accent-color: #238636;
-}
-
-#error-banner {
-	display: none;
-	padding: 12px 16px;
-	background: #da3633;
-	color: #fff;
-	font-size: 13px;
-	text-align: center;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 100;
+#toast.visible {
+	opacity: 1;
 }
 
 #video-capture {
 	display: none;
 }
 
-@media (max-width: 768px) {
-	#app {
-		flex-direction: column-reverse;
-	}
-
-	#controls {
-		width: 100%;
-		min-width: unset;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 8px;
-		padding: 8px 12px;
-		border-left: none;
-		border-top: 1px solid #30363d;
-		max-height: 160px;
-		overflow-y: auto;
-	}
-
-	#controls h1 {
-		width: 100%;
-		font-size: 14px;
-		margin-bottom: 0;
-	}
-
-	.control-group {
-		flex: 1;
-		min-width: 120px;
-	}
+@keyframes fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 `;
 
