@@ -48,16 +48,27 @@ export function renderFrame(
 		}
 		output.textContent = parts.join("");
 	} else {
-		const parts: string[] = [];
-		for (let i = 0; i < len; i++) {
-			const ch = chars[i] === " " ? "&nbsp;" : escapeHtml(chars[i]);
-			parts.push(
-				`<span style="color:${sanitizeColor(colors?.[i] ?? "rgb(128,128,128)")}">${ch}</span>`,
-			);
-			if ((i + 1) % width === 0 && i < len - 1) {
-				parts.push("<br>");
+		// Reuse existing spans if count matches (fast path for subsequent frames)
+		const existingSpans = output.getElementsByTagName("span");
+		if (existingSpans.length === len) {
+			for (let i = 0; i < len; i++) {
+				const span = existingSpans[i];
+				span.textContent = chars[i] === " " ? "\u00a0" : chars[i];
+				span.style.color = sanitizeColor(colors?.[i] ?? "rgb(128,128,128)");
 			}
+		} else {
+			// First frame or dimension change: build with innerHTML
+			const parts: string[] = [];
+			for (let i = 0; i < len; i++) {
+				const ch = chars[i] === " " ? "&nbsp;" : escapeHtml(chars[i]);
+				parts.push(
+					`<span style="color:${sanitizeColor(colors?.[i] ?? "rgb(128,128,128)")}">${ch}</span>`,
+				);
+				if ((i + 1) % width === 0 && i < len - 1) {
+					parts.push("<br>");
+				}
+			}
+			output.innerHTML = parts.join("");
 		}
-		output.innerHTML = parts.join("");
 	}
 }

@@ -46,8 +46,19 @@ describe("CHAR_RAMPS", () => {
 		expect(CHAR_RAMPS.blocks).toEqual([..."█▓▒░ "]);
 	});
 
-	test("has all four ramp types", () => {
-		expect(Object.keys(CHAR_RAMPS)).toEqual(["standard", "detailed", "blocks", "minimal"]);
+	test("has all ramp types", () => {
+		expect(Object.keys(CHAR_RAMPS)).toEqual([
+			"standard",
+			"detailed",
+			"blocks",
+			"minimal",
+			"braille",
+			"kanji",
+			"geometric",
+			"shade",
+			"box",
+			"unicode",
+		]);
 	});
 });
 
